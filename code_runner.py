@@ -37,7 +37,7 @@ def run_python_code(code):
 
         # Run the temp.py file
         result = subprocess.run(
-            ["C:\\Users\\shivam\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", "temp.py"],
+            [your python .exe path],
             capture_output=True,
             text=True, 
             timeout=5
