@@ -2,6 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from gpt_service import generate_code
 from code_runner import run_python_code
+from openai import OpenAI 
+import requests
+import json
 
 app = FastAPI()
 
@@ -30,13 +33,34 @@ async def generate_and_run(data: dict):
     output_log = ""
     
     while attempts < max_retries:
-        code = await generate_code(prompt)
-        success, output = run_python_code(code)
-        output_log += f"\n\nAttempt {attempts + 1}:\n{code}\n{output}"
-        if success:
-            return {"success": True, "code": code, "output": output_log, "attempts": attempts + 1}
-        else:
-            prompt += f"\n\nFix the error: {output}"
-            attempts += 1
+        try: 
+            response = requests.post(
+                url="https://openrouter.ai/api/v1/chat/completions",
+                headers={
+                    
+                    "Authorization": "//OPENAAI_API_KEY",},
+                data=json.dumps({
+                    "model": "gpt-3.5-turbo",
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": prompt
+                        }
+                    ]
+                })
+            )      
 
+            #print(response.json())
+            code= response.json().get("choices")[0].get("message").get("content")
+            success, output = run_python_code(code)
+            output_log += f"\n\nAttempt {attempts + 1}:\n{code}\n{output}"
+            if success:
+                return {"success": True, "code": code, "output": output_log, "attempts": attempts + 1}
+            else:
+                prompt += f"\n\nFix the error: {output}"
+                attempts += 1
+        except Exception as e:
+            print("Error in generate-and-run:", e)
+            return {"success": False, "code": "", "output": str(e), "attempts": attempts+1}
     return {"success": False, "code": code, "output": output_log, "attempts": attempts}
+
