@@ -1,17 +1,20 @@
 import os
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
 
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    base_url="https://openrouter.ai/api/v1"
+)
 async def generate_code(prompt):
-    res = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+    response = client.chat.completions.create(
+        model="openai/gpt-3.5-turbo",  # OpenRouter model naming format
         messages=[
             {"role": "system", "content": "Generate a correct and runnable Python script."},
             {"role": "user", "content": prompt}
         ]
     )
-    return res['choices'][0]['message']['content'].strip()
 
+    return response.choices[0].message.content.strip()
