@@ -14,7 +14,9 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000",
+                  "https://raie-frontend.vercel.app"
+                  ],
     allow_credentials=True,
     allow_methods=["*"],   # THIS IS IMPORTANT
     allow_headers=["*"],
@@ -87,4 +89,5 @@ async def generate_and_run(data: dict):
         "code": "",
         "output": output_log,
         "attempts": attempts
+
     }
